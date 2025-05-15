@@ -9,18 +9,22 @@ local player = {
 }
 
 local bullets = {}
-local bulletSpeed = 400
-local bulletWidth = 5
-local bulletHeight = 10
+local bulletSpeed = 600
+local bulletWidth = 10
+local bulletHeight = 15
 
 local score = 0
 
 local enemies = {}
-local enemySpawnTimer = 0
-local enemySpawnInterval = 1.5
+local rows = 5
+local cols = 14
+local enemySpacing = 80
+local enemyStartX = 100
+local enemyStartY = 50
+local enemyDir = 1
 local enemySpeed = 100
-local enemyWidth = 40
-local enemyHeight = 40
+local enemyWidth = 50
+local enemyHeight = 50
 
 function game.update(dt)
     game.updatePlayer(dt)
@@ -74,21 +78,23 @@ function game.updateBullets(dt)
 end
 
 function game.updateEnemies(dt)
-    enemySpawnTimer = enemySpawnTimer + dt
-    if enemySpawnTimer >= enemySpawnInterval then
-        enemySpawnTimer = 0
-        local enemyX = math.random(20, love.graphics.getWidth() - enemyWidth - 20)
-        table.insert(enemies, { x = enemyX, y = -enemyHeight })
+    local shiftDown = false
+
+    for _, e in ipairs(enemies) do
+        e.x = e.x + enemyDir * enemySpeed * dt
+
+        -- Check if any enemy hits edge
+        if e.x + e.width >= love.graphics.getWidth() - 20 or e.x <= 20 then
+            shiftDown = true
+        end
     end
 
-    -- move enemies outside screen
-    for i = #enemies, 1, -1 do
-        local e = enemies[i]
-        e.y = e.y + enemySpeed * dt
-
-        if e.y > love.graphics.getHeight() then
-            table.remove(enemies, i)
+    -- Shift down and reverse direction
+    if shiftDown then
+        for _, e in ipairs(enemies) do
+            e.y = e.y + 30
         end
+        enemyDir = -enemyDir
     end
 
     -- check for collisions
@@ -109,11 +115,27 @@ function game.updateEnemies(dt)
     end
 end
 
+function game.spawnEnemies()
+    enemies = {}
+    for row = 0, rows - 1 do
+        for col = 0, cols - 1 do
+            local enemy = {
+                x = enemyStartX + col * enemySpacing,
+                y = enemyStartY + row * enemySpacing,
+                width = 40,
+                height = 40,
+            }
+            table.insert(enemies, enemy)
+        end
+    end
+end
 
 function game.shoot()
     local bulletX = player.x + player.width / 2 - bulletWidth / 2
     local bulletY = player.y
-    table.insert(bullets, { x = bulletX, y = bulletY })
+    if #bullets == 0 then
+        table.insert(bullets, { x = bulletX, y = bulletY })
+    end
 end
 
 function game.keypressed(key)
