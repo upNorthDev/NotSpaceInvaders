@@ -8,7 +8,6 @@ function startscreen.load()
 end
 
 function startscreen.draw()
-    local font = love.graphics.getFont()
     local screenWidth = love.graphics.getWidth()
 
     love.graphics.printf('Not Space Invaders™', 0, 200, screenWidth, 'center')

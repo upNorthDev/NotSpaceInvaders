@@ -23,6 +23,33 @@ local enemyWidth = 40
 local enemyHeight = 40
 
 function game.update(dt)
+    game.updatePlayer(dt)
+    game.updateBullets(dt)
+    game.updateEnemies(dt)
+end
+
+function game.draw()
+    local screenWidth = love.graphics.getWidth()
+
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.rectangle('fill', player.x, player.y, player.width, player.height)
+
+    love.graphics.printf("Score: " .. score, 30, 100, screenWidth, 'left')
+
+    --draw player
+    for _, b in ipairs(bullets) do
+        love.graphics.rectangle('fill', b.x, b.y, bulletWidth, bulletHeight)
+    end
+
+    -- draw enemies
+    for _, e in ipairs(enemies) do
+        love.graphics.setColor(1, 0, 0) -- red
+        love.graphics.rectangle('fill', e.x, e.y, enemyWidth, enemyHeight)
+    end
+    love.graphics.setColor(1, 1, 1) -- reset color
+end
+
+function game.updatePlayer(dt)
     if love.keyboard.isDown('left') then
         player.x = player.x - player.speed * dt
     end
@@ -34,7 +61,9 @@ function game.update(dt)
     local margin = 20
 
     player.x = math.max(margin, math.min(player.x, winWidth - player.width - margin))
+end
 
+function game.updateBullets(dt)
     for i = #bullets, 1, -1 do
         local b = bullets[i]
         b.y = b.y - bulletSpeed * dt
@@ -42,7 +71,9 @@ function game.update(dt)
             table.remove(bullets, i) -- remove bullets off screen
         end
     end
+end
 
+function game.updateEnemies(dt)
     enemySpawnTimer = enemySpawnTimer + dt
     if enemySpawnTimer >= enemySpawnInterval then
         enemySpawnTimer = 0
@@ -78,25 +109,6 @@ function game.update(dt)
     end
 end
 
-function game.draw()
-    local screenWidth = love.graphics.getWidth()
-
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.rectangle('fill', player.x, player.y, player.width, player.height)
-
-    love.graphics.printf("Score: " .. score, 30, 100, screenWidth, 'left')
-
-    for _, b in ipairs(bullets) do
-        love.graphics.rectangle('fill', b.x, b.y, bulletWidth, bulletHeight)
-    end
-
-    -- draw enemies
-    for _, e in ipairs(enemies) do
-        love.graphics.setColor(1, 0, 0) -- red
-        love.graphics.rectangle('fill', e.x, e.y, enemyWidth, enemyHeight)
-    end
-    love.graphics.setColor(1, 1, 1) -- reset color
-end
 
 function game.shoot()
     local bulletX = player.x + player.width / 2 - bulletWidth / 2
