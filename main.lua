@@ -5,7 +5,7 @@ local background = require ('background')
 local isStarted = false
 
 function love.load()
-    love.window.setMode(1024, 768)
+    love.window.setMode(1920, 1080)
     startscreen.load()
 end
 
@@ -22,6 +22,7 @@ function love.keypressed(key)
     if key == 'space' then
         isStarted = true
     end
+    game.keypressed(key)
 end
 
 function love.update(dt)
