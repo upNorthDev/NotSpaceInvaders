@@ -1,9 +1,13 @@
 local background = {}
+local bgImage
+local imageWidth
+
+function background.load()
+    bgImage = love.graphics.newImage ("assets/galaxy.png")
+    imageWidth = bgImage:getWidth()
+end
 
 function background.draw()
-    local bgImage = love.graphics.newImage ("assets/galaxy.png")
-    local imageWidth = bgImage:getWidth()
-
     love.graphics.draw(bgImage)
     love.graphics.draw(bgImage, imageWidth)
 end

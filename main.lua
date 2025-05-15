@@ -7,6 +7,7 @@ local isStarted = false
 function love.load()
     love.window.setMode(1920, 1080)
     startscreen.load()
+    background.load()
 end
 
 function love.draw()
