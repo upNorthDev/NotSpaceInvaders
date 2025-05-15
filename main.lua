@@ -28,6 +28,7 @@ end
 
 function love.update(dt)
     if(isStarted) then
+        background.update(dt)
         game.update(dt)
     end
 end
