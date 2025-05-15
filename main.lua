@@ -1,6 +1,7 @@
 -- luacheck: globals love
 local startscreen = require('startscreen')
 local game = require('game')
+local background = require ('background')
 local isStarted = false
 
 function love.load()
@@ -9,6 +10,7 @@ function love.load()
 end
 
 function love.draw()
+    background.draw()
     if(isStarted) then
         game.draw()
     else
