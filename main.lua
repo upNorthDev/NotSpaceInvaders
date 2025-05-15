@@ -1,3 +1,10 @@
+-- luacheck: globals love
+local startscreen = require('startscreen')
+
+function love.load()
+    startscreen.load()
+end
+
 function love.draw()
-    love.graphics.print('Not Space Invaders™', 400, 300)
+    startscreen.draw()
 end
