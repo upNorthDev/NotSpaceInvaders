@@ -10,7 +10,7 @@ end
 function startscreen.draw()
     local font = love.graphics.getFont()
     local screenWidth = love.graphics.getWidth()
-    
+
     love.graphics.printf('Not Space Invaders™', 0, 200, screenWidth, 'center')
     love.graphics.printf('Press SPACE to start', 0, 300, screenWidth, 'center')
 end
