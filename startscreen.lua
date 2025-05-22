@@ -1,11 +1,15 @@
 -- luacheck: globals love
 local startscreen = {}
 local titleImage = nil
+local joystick
 
 function startscreen.load()
     titleImage = love.graphics.newImage('assets/title.png')
     love.graphics.setBackgroundColor(0, 0, 0)
     love.graphics.setColor(255, 255, 255)
+
+    local joysticks = love.joystick.getJoysticks()
+    joystick = joysticks[1]  -- Use the first connected joystick
 end
 
 function startscreen.draw()
