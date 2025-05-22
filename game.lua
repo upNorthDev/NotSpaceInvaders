@@ -20,6 +20,8 @@ local bulletSpeed = 700
 local bulletWidth = 10
 local bulletHeight = 15
 
+local joystick
+
 local enemyBullets = {}
 local enemyShootTimer = 0
 local enemyShootInterval = 1
@@ -62,11 +64,6 @@ function game.update(dt)
         return
     end
 
-    if joystick then
-        local x = joystick:getAxis(1) or 0  -- Usually left/right
-
-        local playerX = player.x + x * player.speed * dt
-    end
 
     game.updatePlayer(dt)
     game.updateBullets(dt)
@@ -113,7 +110,24 @@ function game.draw()
     end
     love.graphics.setColor(1, 1, 1) -- reset color
 
+    if joystick then
+        for i = 1, joystick:getButtonCount() do
+            local status = joystick:isDown(i) and "Pressed"
+            if status then
+                game.shoot()
+            end
+        end
+    end
+
     if isGameover then
+        if joystick then
+            for i = 1, joystick:getButtonCount() do
+                local status = joystick:isDown(i) and "Pressed"
+                if status then
+                    game.reset()
+                end
+            end
+        end
         local screenHeight = love.graphics.getHeight()
 
         love.graphics.printf('Game Over', 0, screenHeight / 2 - 50, screenWidth, 'center')
@@ -128,6 +142,15 @@ function game.updatePlayer(dt)
     if love.keyboard.isDown('right') then
         player.x = player.x + player.speed * dt
     end
+    if joystick then
+        local x = joystick:getAxis(1) or 0  -- Usually left/right
+        
+        if x == 1 then
+            player.x = player.x + x * player.speed * dt
+        elseif x == -1 then
+            player.x = player.x - -x * player.speed * dt
+        end
+    end
 
     local winWidth = love.graphics.getWidth()
     local margin = 20
@@ -138,9 +161,9 @@ function game.updatePlayer(dt)
     for bi = #enemyBullets, 1, -1 do
         local b = enemyBullets[bi]
         if b.x < player.x + player.width and
-           b.x + bulletWidth > player.x and
-           b.y < player.y + player.height and
-           b.y + bulletHeight > player.y then
+            b.x + bulletWidth > player.x and
+            b.y < player.y + player.height and
+            b.y + bulletHeight > player.y then
             table.remove(enemyBullets, bi)
             score = 0
             lives = lives - 1
@@ -200,9 +223,9 @@ function game.updateEnemies(dt)
         for ei = #enemies, 1, -1 do
             local e = enemies[ei]
             if b.x < e.x + enemyWidth and
-               b.x + bulletWidth > e.x and
-               b.y < e.y + enemyHeight and
-               b.y + bulletHeight > e.y then
+                b.x + bulletWidth > e.x and
+                b.y < e.y + enemyHeight and
+                b.y + bulletHeight > e.y then
                 table.remove(bullets, bi)
                 table.remove(enemies, ei)
                 score = score + 10
@@ -262,12 +285,38 @@ function game.keypressed(key)
     end
 
     if key == 'r' and isGameover then
-        isGameover = false
-        lives = 3
-        score = 0
-        game.spawnEnemies()
-        pause = false
+        game.reset()
     end
+end
+
+function game.reset()
+    player.x = 300
+    player.y = 1000
+    player.width = 110
+    player.height = 60
+    player.speed = 400
+    -- player.image = nil
+
+    lives = 3
+    isGameover = false
+    pause = false
+
+    bullets = {}
+    bulletSpeed = 700
+    bulletWidth = 10
+    bulletHeight = 15
+
+    -- joystick = nil
+
+    enemyBullets = {}
+    enemyShootTimer = 0
+    enemyShootInterval = 3
+
+    score = 0
+
+    enemies = {}
+
+    game.spawnEnemies()
 end
 
 return game
