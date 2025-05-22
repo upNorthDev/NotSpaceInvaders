@@ -46,11 +46,26 @@ function game.load()
     player.image = livesImg
     livesWidth = livesImg:getWidth()
     player.image:setFilter('nearest', 'nearest')
+
+    local joysticks = love.joystick.getJoysticks()
+    joystick = joysticks[1]  -- Use the first connected joystick
+    if joystick then
+        print("Joystick detected: " .. joystick:getName())
+        print("Is gamepad: " .. tostring(joystick:isGamepad()))
+    else
+        print("No joystick detected.")
+    end
 end
 
 function game.update(dt)
     if pause then
         return
+    end
+
+    if joystick then
+        local x = joystick:getAxis(1) or 0  -- Usually left/right
+
+        local playerX = player.x + x * player.speed * dt
     end
 
     game.updatePlayer(dt)
@@ -61,6 +76,14 @@ end
 
 function game.draw()
     local screenWidth = love.graphics.getWidth()
+
+    if joystick then
+        -- Draw axes info
+        for i = 1, joystick:getAxisCount() do
+            local val = joystick:getAxis(i)
+            love.graphics.print("Axis " .. i .. ": " .. string.format("%.2f", val), 10, i * 15)
+        end
+    end
 
     love.graphics.setColor(1, 1, 1)
     --debug hitbox
@@ -157,7 +180,7 @@ function game.updateEnemies(dt)
             e.x = e.x + enemyDir * enemySpacing -- Move by one "jump" (enemySpacing)
 
             -- Check if any enemy hits the edge
-            if e.x + enemyWidth >= love.graphics.getWidth() - 20 or e.x <= 20 then
+            if e.x + enemyWidth >= love.graphics.getWidth() - 150 or e.x <= 150 then
                 shiftDown = true
             end
         end
