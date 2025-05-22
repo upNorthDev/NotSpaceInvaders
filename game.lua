@@ -1,5 +1,7 @@
 local game = {}
 
+local gameover = require('gameover')
+
 local player = {
     x = 300,
     y = 1000,
@@ -10,6 +12,8 @@ local player = {
 }
 
 local lives = 3
+local isGameover = false
+local pause = false
 
 local bullets = {}
 local bulletSpeed = 700
@@ -40,9 +44,14 @@ function game.load()
 end
 
 function game.update(dt)
+    if pause then
+        return
+    end
+
     game.updatePlayer(dt)
     game.updateBullets(dt)
     game.updateEnemies(dt)
+    game.updateGameOver(dt)
 end
 
 function game.draw()
@@ -55,6 +64,7 @@ function game.draw()
     love.graphics.draw(player.image, player.x - 5, player.y, 0, 7)
 
     love.graphics.printf("Score: " .. score, 30, 100, screenWidth, 'left')
+    love.graphics.printf("Lives: " .. lives, 30, 200, screenWidth, 'left')
 
     -- draw player
     for _, b in ipairs(bullets) do
@@ -71,6 +81,13 @@ function game.draw()
         love.graphics.rectangle('fill', e.x, e.y, enemyWidth, enemyHeight)
     end
     love.graphics.setColor(1, 1, 1) -- reset color
+
+    if isGameover then
+        local screenHeight = love.graphics.getHeight()
+
+        love.graphics.printf('Game Over', 0, screenHeight / 2 - 50, screenWidth, 'center')
+        love.graphics.printf('Press R to restart', 0, screenHeight / 2 + 10, screenWidth, 'center')
+    end
 end
 
 function game.updatePlayer(dt)
@@ -93,6 +110,7 @@ function game.updatePlayer(dt)
            b.x + bulletWidth > player.x and
            b.y < player.y + player.height and
            b.y + bulletHeight > player.y then
+            table.remove(enemyBullets, bi)
             score = 0
             lives = lives - 1
             break
@@ -169,6 +187,13 @@ function game.updateEnemies(dt)
     end
 end
 
+function game.updateGameOver(dt)
+    if lives <= 0 then
+        pause = true
+        isGameover = true
+    end
+end
+
 function game.spawnEnemies()
     enemies = {}
     for row = 0, rows - 1 do
@@ -203,6 +228,14 @@ end
 function game.keypressed(key)
     if key == 'space' then
         game.shoot()
+    end
+
+    if key == 'r' and isGameover then
+        isGameover = false
+        lives = 3
+        score = 0
+        game.spawnEnemies()
+        pause = false
     end
 end
 
