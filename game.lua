@@ -26,6 +26,9 @@ local enemyShootInterval = 1
 
 local score = 0
 
+local livesImg
+local livesWidth
+
 local enemies = {}
 local rows = 5
 local cols = 11
@@ -39,7 +42,9 @@ local enemyMoveTimer = 3
 local enemyMoveInterval = 2
 
 function game.load()
-    player.image = love.graphics.newImage('assets/player.png')
+    livesImg = love.graphics.newImage('assets/player.png')
+    player.image = livesImg
+    livesWidth = livesImg:getWidth()
     player.image:setFilter('nearest', 'nearest')
 end
 
@@ -64,7 +69,10 @@ function game.draw()
     love.graphics.draw(player.image, player.x - 5, player.y, 0, 7)
 
     love.graphics.printf("Score: " .. score, 30, 100, screenWidth, 'left')
-    love.graphics.printf("Lives: " .. lives, 30, 200, screenWidth, 'left')
+    -- love.graphics.printf("Lives: " .. lives, 30, 200, screenWidth, 'left')
+    for i = 0, lives -1 do
+        love.graphics.draw(livesImg, i * (livesWidth + 40) , 20, 0 , 3, 3)
+    end
 
     -- draw player
     for _, b in ipairs(bullets) do
