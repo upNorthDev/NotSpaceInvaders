@@ -14,6 +14,7 @@ function love.load()
     love.graphics.setFont(pixelFont)
     startscreen.load()
     background.load()
+    game.load()
     game.spawnEnemies()
 end
 
