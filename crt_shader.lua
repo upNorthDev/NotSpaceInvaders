@@ -2,7 +2,6 @@ local retroShader = love.graphics.newShader([[
     extern number time;
     vec4 effect(vec4 color, Image tex, vec2 texCoord, vec2 screenCoord)
     {
-        // Respect the original texel color
         float offset = 0.0015;
 
         float r = texture2D(tex, texCoord + vec2(offset, 0)).r;
@@ -11,7 +10,6 @@ local retroShader = love.graphics.newShader([[
 
         vec3 rgb = vec3(r, g, b);
 
-        // Optional scanline effect
         float scanline = sin(screenCoord.y * 3.14159 * 0.5) * 0.05;
         rgb -= scanline;
 
