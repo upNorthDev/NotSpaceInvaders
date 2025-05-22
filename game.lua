@@ -89,17 +89,13 @@ function game.updatePlayer(dt)
     -- check for collisions
     for bi = #enemyBullets, 1, -1 do
         local b = enemyBullets[bi]
-        for ei = #enemies, 1, -1 do
-            local e = enemies[ei]
-            if b.x < e.x + enemyWidth and
-               b.x + bulletWidth > e.x and
-               b.y < e.y + enemyHeight and
-               b.y + bulletHeight > e.y then
-                table.remove(enemyBullets, bi)
-                table.remove(enemies, ei)
-                score = score + 10
-                break
-            end
+        if b.x < player.x + player.width and
+           b.x + bulletWidth > player.x and
+           b.y < player.y + player.height and
+           b.y + bulletHeight > player.y then
+            score = 0
+            lives = lives - 1
+            break
         end
     end
 end
