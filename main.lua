@@ -5,6 +5,7 @@ local background = require ('background')
 local retroShader = require('crt_shader')
 local isStarted = false
 local pixelFont
+local joystick
 
 function love.load()
     love.window.setMode(1920, 1080)
@@ -38,6 +39,14 @@ function love.keypressed(key)
 end
 
 function love.update(dt)
+    if joystick then
+        for i = 1, joystick:getButtonCount() do
+            local status = joystick:isDown(i) and "Pressed"
+            if status then
+                isStarted = true
+            end
+        end
+    end
     if(isStarted) then
         background.update(dt)
         game.update(dt)
