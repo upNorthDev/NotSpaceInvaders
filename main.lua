@@ -3,7 +3,7 @@ local startscreen = require('startscreen')
 local game = require('game')
 local background = require ('background')
 local retroShader = require('crt_shader')
-local isStarted = false
+isStarted = false
 local pixelFont
 local joystick
 local joysticks
@@ -56,3 +56,11 @@ function love.update(dt)
         game.update(dt)
     end
 end
+
+function love.reset()
+    love.graphics.setFont(pixelFont)
+    startscreen.load()
+    background.load()
+    game.load()
+    game.spawnEnemies()
+end 

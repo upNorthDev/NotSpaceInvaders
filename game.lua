@@ -316,7 +316,11 @@ function game.reset()
 
     enemies = {}
 
-    game.spawnEnemies()
+if isStarted ~= nil then
+    isStarted = false
+end
+love.reset()
+
 end
 
 return game
