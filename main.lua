@@ -6,11 +6,15 @@ local retroShader = require('crt_shader')
 local isStarted = false
 local pixelFont
 local joystick
+local joysticks
 
 function love.load()
     love.window.setMode(1920, 1080)
     pixelFont = love.graphics.newFont("assets/fonts/PressStart2P-Regular.ttf", 16)
     pixelFont:setFilter("nearest", "nearest")
+
+    joysticks = love.joystick.getJoysticks()
+    joystick = joysticks[1]
 
     love.graphics.setFont(pixelFont)
     startscreen.load()
