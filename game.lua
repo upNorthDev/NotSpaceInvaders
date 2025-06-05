@@ -316,7 +316,7 @@ function game.reset()
 
     enemies = {}
 
-if isStarted ~=nil then
+if isStarted ~= nil then
     isStarted = false
 end
 love.reset()
