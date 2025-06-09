@@ -160,7 +160,6 @@ function game.updatePlayer(dt)
             b.y < player.y + player.height and
             b.y + bulletHeight > player.y then
             table.remove(enemyBullets, bi)
-            score = 0
             lives = lives - 1
             break
         end
