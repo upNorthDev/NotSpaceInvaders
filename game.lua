@@ -47,11 +47,17 @@ local totalEnemies = rows * cols
 local enemyMoveTimer = 3
 local enemyMoveInterval = 2
 
+local highscores = {}
+local highscoreFile = 'highscores.lua'
+
 function game.load()
     livesImg = love.graphics.newImage('assets/player.png')
     player.image = livesImg
     livesWidth = livesImg:getWidth()
     player.image:setFilter('nearest', 'nearest')
+
+    enemyImg = love.graphics.newImage('assets/enemy.png') -- Load enemy image
+    enemyImg:setFilter('nearest', 'nearest') -- Ensure pixel-perfect rendering
 
     local joysticks = love.joystick.getJoysticks()
     joystick = joysticks[1]
@@ -61,6 +67,8 @@ function game.load()
     else
         print("No joystick detected.")
     end
+
+    game.loadHighscores()
 end
 
 function game.update(dt)
@@ -80,14 +88,12 @@ function game.update(dt)
 end
 
 function game.draw()
-    local screenWidth = love.graphics.getWidth()
-
-    if joystick then
-        for i = 1, joystick:getAxisCount() do
-            local val = joystick:getAxis(i)
-            love.graphics.print("Axis " .. i .. ": " .. string.format("%.2f", val), 10, i * 15)
-        end
+    if isGameover then
+        game.drawNameSelection()
+        return
     end
+
+    local screenWidth = love.graphics.getWidth()
 
     love.graphics.printf("Level: " .. level, 30, 50, screenWidth - 50, 'right')
 
@@ -97,8 +103,8 @@ function game.draw()
 
     love.graphics.printf("Score: ", 20, 100, screenWidth, 'left')
     love.graphics.printf(score, 20, 130, screenWidth, 'left')
-    for i = 0, lives -1 do
-        love.graphics.draw(livesImg, i * (livesWidth + 40) , 20, 0 , 3, 3)
+    for i = 0, lives - 1 do
+        love.graphics.draw(livesImg, i * (livesWidth + 40), 20, 0, 3, 3)
     end
 
     for _, b in ipairs(bullets) do
@@ -110,24 +116,9 @@ function game.draw()
     end
 
     for _, e in ipairs(enemies) do
-        love.graphics.setColor(1, 0, 0)
-        love.graphics.rectangle('fill', e.x, e.y, enemyWidth, enemyHeight)
-    end
-    love.graphics.setColor(1, 1, 1)
-
-    if isGameover then
-        if joystick then
-            for i = 1, joystick:getButtonCount() do
-                local status = joystick:isDown(i) and "Pressed"
-                if status then
-                    game.reset()
-                end
-            end
-        end
-        local screenHeight = love.graphics.getHeight()
-
-        love.graphics.printf('Game Over', 0, screenHeight / 2 - 50, screenWidth, 'center')
-        love.graphics.printf('Press R to restart', 0, screenHeight / 2 + 10, screenWidth, 'center')
+        local scaleX = enemyWidth / enemyImg:getWidth()
+        local scaleY = enemyHeight / enemyImg:getHeight()
+        love.graphics.draw(enemyImg, e.x, e.y, 0, scaleX, scaleY)
     end
 end
 
@@ -149,7 +140,7 @@ function game.updatePlayer(dt)
     end
 
     local winWidth = love.graphics.getWidth()
-    local margin = 20
+    local margin = 170
 
     player.x = math.max(margin, math.min(player.x, winWidth - player.width - margin))
 
@@ -161,6 +152,18 @@ function game.updatePlayer(dt)
             b.y + bulletHeight > player.y then
             table.remove(enemyBullets, bi)
             lives = lives - 1
+            break
+        end
+    end
+
+    for enemy = #enemies, 1, -1 do
+        local e = enemies[enemy]
+        if player.x < e.x + enemyWidth and
+           player.x + player.width > e.x and
+           player.y < e.y + enemyHeight and
+           player.y + player.height > e.y then
+            isGameover = true
+            pause = true
             break
         end
     end
@@ -212,6 +215,19 @@ function game.updateEnemies(dt)
     if enemyShootTimer >= enemyShootInterval then
         game.enemyShoot()
         enemyShootTimer = 0
+    end
+
+    game.checkGameOverCondition()
+end
+
+function game.checkGameOverCondition()
+    local screenHeight = love.graphics.getHeight()
+    for _, e in ipairs(enemies) do
+        if e.y > screenHeight then
+            isGameover = true
+            pause = true
+            break
+        end
     end
 end
 
@@ -273,6 +289,79 @@ function game.spawnEnemies()
     speedMultiplier = 1
 end
 
+local nameSelection = { "A", "A", "A" }
+local nameIndex = 1
+local alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+function game.updateNameSelection(key)
+    if key == "up" then
+        local currentChar = nameSelection[nameIndex]
+        local charIndex = alphabet:find(currentChar)
+        charIndex = charIndex % #alphabet + 1
+        nameSelection[nameIndex] = alphabet:sub(charIndex, charIndex)
+    elseif key == "down" then
+        local currentChar = nameSelection[nameIndex]
+        local charIndex = alphabet:find(currentChar)
+        charIndex = (charIndex - 2) % #alphabet + 1
+        nameSelection[nameIndex] = alphabet:sub(charIndex, charIndex)
+    elseif key == "left" then
+        nameIndex = math.max(1, nameIndex - 1)
+    elseif key == "right" then
+        nameIndex = math.min(3, nameIndex + 1)
+    elseif key == "return" then
+        local name = table.concat(nameSelection)
+        game.addHighscore(name, score)
+        isGameover = false
+        game.reset()
+    end
+end
+
+function game.loadHighscores()
+    local chunk = love.filesystem.load(highscoreFile)
+    if chunk then
+        highscores = chunk()
+    else
+        highscores = {}
+    end
+
+    print("Highscores loaded:", highscores)
+end
+
+function game.saveHighscores()
+    local file = "return {\n"
+    for _, entry in ipairs(highscores) do
+        file = file .. string.format("    { name = %q, score = %d },\n", entry.name, entry.score)
+    end
+    file = file .. "}\n"
+    love.filesystem.write(highscoreFile, file)
+end
+
+function game.addHighscore(name, score)
+    table.insert(highscores, { name = name, score = score })
+    table.sort(highscores, function(a, b) return a.score > b.score end)
+    while #highscores > 10 do
+        table.remove(highscores)
+    end
+    print("New highscore added: " .. name .. " with score " .. score)
+    print("Current highscores:")
+    for i, entry in ipairs(highscores) do
+        print(string.format("%d. %s: %d", i, entry.name, entry.score))
+    end
+    game.saveHighscores()
+end
+
+function game.drawNameSelection()
+    local screenWidth = love.graphics.getWidth()
+    local screenHeight = love.graphics.getHeight()
+
+    love.graphics.printf("Enter Your Name", 0, screenHeight / 2 - 100, screenWidth, "center")
+    for i, char in ipairs(nameSelection) do
+        local x = screenWidth / 2 - 50 + (i - 2) * 40
+        love.graphics.printf(char, x, screenHeight / 2, 40, "center")
+    end
+    love.graphics.printf("Use the joystick to select", 0, screenHeight / 2 + 100, screenWidth, "center")
+end
+
 function game.shoot()
     local bulletX = player.x + player.width / 2 - bulletWidth / 2
     local bulletY = player.y
@@ -290,11 +379,18 @@ function game.enemyShoot()
 end
 
 function game.keypressed(key)
-    if key == 'space' then
+    if isGameover then
+        if key == "up" or key == "down" or key == "left" or key == "right" or key == "return" then
+            game.updateNameSelection(key)
+        end
+        return
+    end
+
+    if key == "space" then
         game.shoot()
     end
 
-    if key == 'r' and isGameover then
+    if key == "r" and isGameover then
         game.reset()
     end
 end
