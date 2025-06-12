@@ -295,6 +295,9 @@ function game.spawnEnemies()
         end
     end
 
+    -- Decrease enemy shooting interval as level increases
+    enemyShootInterval = math.max(0.5, enemyShootInterval - 0.1 * level)
+
     speedMultiplier = 1
 end
 
