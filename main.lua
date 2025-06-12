@@ -42,16 +42,23 @@ function love.keypressed(key)
     game.keypressed(key)
 end
 
+local inputDelay = 1 -- Delay in seconds
+local lastInputTime = 0 -- Tracks the last input time
+
 function love.update(dt)
+    local currentTime = love.timer.getTime()
+
     if joystick then
         for i = 1, joystick:getButtonCount() do
             local status = joystick:isDown(i) and "Pressed"
-            if status then
+            if status and currentTime - lastInputTime >= inputDelay then
                 isStarted = true
+                lastInputTime = currentTime -- Update the last input time
             end
         end
     end
-    if(isStarted) then
+
+    if isStarted then
         background.update(dt)
         game.update(dt)
     end
@@ -63,4 +70,4 @@ function love.reset()
     background.load()
     game.load()
     game.spawnEnemies()
-end 
+end

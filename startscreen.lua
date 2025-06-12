@@ -34,7 +34,7 @@ function startscreen.draw()
     love.graphics.draw(titleImage, titleX, titleY, 0, 1, 1)
 
     -- Draw "Press SPACE to start" text
-    love.graphics.printf('Press SPACE to start', 0, screenHeight - 200, screenWidth, 'center')
+    love.graphics.printf('Press BUTTON to start', 0, screenHeight - 200, screenWidth, 'center')
 
     -- Draw highscores
     love.graphics.printf('Highscores:', 200, screenHeight - 770, screenWidth, 'left')
