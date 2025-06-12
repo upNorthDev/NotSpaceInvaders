@@ -356,7 +356,7 @@ function game.drawNameSelection()
 
     love.graphics.printf("Enter Your Name", 0, screenHeight / 2 - 100, screenWidth, "center")
     for i, char in ipairs(nameSelection) do
-        local x = screenWidth / 2 - 50 + (i - 2) * 40
+        local x = screenWidth / 2 - 30 + (i - 2) * 40
         love.graphics.printf(char, x, screenHeight / 2, 40, "center")
     end
     love.graphics.printf("Use the joystick to select", 0, screenHeight / 2 + 100, screenWidth, "center")
