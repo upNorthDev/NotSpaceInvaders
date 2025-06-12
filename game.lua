@@ -474,6 +474,7 @@ function game.reset()
     enemies = {}
 
     level = 1
+    nameSelection = { "A", "A", "A" }
 
 if isStarted ~= nil then
     isStarted = false
