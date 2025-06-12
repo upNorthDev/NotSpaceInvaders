@@ -12,6 +12,7 @@ function love.load()
     love.window.setMode(1920, 1080)
     pixelFont = love.graphics.newFont("assets/fonts/PressStart2P-Regular.ttf", 16)
     pixelFont:setFilter("nearest", "nearest")
+    love.mouse.setVisible(false) -- Hide the cursor
 
     joysticks = love.joystick.getJoysticks()
     joystick = joysticks[1]
@@ -61,6 +62,8 @@ function love.update(dt)
     if isStarted then
         background.update(dt)
         game.update(dt)
+    else
+        startscreen.update(dt) -- Ensure startscreen animations are updated
     end
 end
 

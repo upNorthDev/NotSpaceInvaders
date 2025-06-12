@@ -66,6 +66,8 @@ function startscreen.draw()
         local text = string.format("%d. %s: %d", i, entry.name, entry.score)
         love.graphics.printf(text, 200, screenHeight - 770 + i * 30, screenWidth, 'left')
     end
+
+    love.graphics.printf('github.com/upNorthDev', 180, screenHeight - 40, screenWidth, 'left')
 end
 
 return startscreen

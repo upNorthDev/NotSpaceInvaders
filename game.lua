@@ -470,7 +470,7 @@ function game.reset()
 
     enemyBullets = {}
     enemyShootTimer = 0
-    enemyShootInterval = 3
+    enemyShootInterval = 1
 
     score = 0
 
