@@ -364,7 +364,6 @@ end
 
 local inputDelay = 0.2 -- Delay in seconds
 local lastInputTime = 0 -- Tracks the last input time
-
 local blinkTimer = 0 -- Timer for blinking
 local blinkInterval = 0.5 -- Interval for blinking (in seconds)
 local showActiveLetter = true -- Whether to show the active letter
@@ -389,6 +388,44 @@ function game.drawNameSelection()
         elseif i ~= nameIndex then
             -- Draw non-active letters normally
             love.graphics.printf(char, x, screenHeight / 2, 40, "center")
+        end
+    end
+
+    if joystick then
+        local currentTime = love.timer.getTime()
+        if currentTime - lastInputTime >= inputDelay then
+            local y = joystick:getAxis(2) or 0
+            local x = joystick:getAxis(1) or 0
+
+            if y > 0.5 then
+                local currentChar = nameSelection[nameIndex]
+                local charIndex = alphabet:find(currentChar)
+                charIndex = charIndex % #alphabet + 1
+                nameSelection[nameIndex] = alphabet:sub(charIndex, charIndex)
+                lastInputTime = currentTime
+            elseif y < -0.5 then
+                local currentChar = nameSelection[nameIndex]
+                local charIndex = alphabet:find(currentChar)
+                charIndex = (charIndex - 2) % #alphabet + 1
+                nameSelection[nameIndex] = alphabet:sub(charIndex, charIndex)
+                lastInputTime = currentTime
+            end
+
+            if x < -0.5 then
+                nameIndex = math.max(1, nameIndex - 1)
+                lastInputTime = currentTime
+            elseif x > 0.5 then
+                nameIndex = math.min(3, nameIndex + 1)
+                lastInputTime = currentTime
+            end
+
+            if joystick:isDown(1) then
+                local name = table.concat(nameSelection)
+                game.addHighscore(name, score)
+                isGameover = false
+                game.reset() -- Ensure the game resets
+                lastInputTime = currentTime
+            end
         end
     end
 
