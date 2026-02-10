@@ -40,6 +40,3 @@ Sounds: Pew pew.
 Inspiration: Space Invaders (but with questionable spelling)
 
 > Made for fun. No warranty. Aliens were harmed during testing.
-
-
-Let me know if you want a version with a screenshot section or download instructions for specific platforms (e.g. `.love`, `.exe`, `.AppImage`).
